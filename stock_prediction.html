@@ -1,0 +1,126 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Stock Price Prediction</title>
+        <link rel="stylesheet" href="/static/css/style2.css">
+    </head>
+    <body>
+        <header class="header">
+            <div class="logo">
+                <img src="/static/images/logo.png" alt="Logo">
+                <h1>Stock Predictor</h1>
+            </div>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="stock_prediction.html">Stock Prediction</a>
+                <a href="about.html">About</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </header>
+    <main class="content">
+        <section class="form-section">
+            <h2>Stock Price Prediction</h2>
+            <p>Enter the stock symbol and date range to predict future stock prices:</p>
+            <form id="stock-form">
+                <div class="form-group">
+                    <label for="stock-symbol">Stock Symbol:</label>
+                    <select id="stock-symbol" name="stock-symbol" required>
+                        <option value="">Select a stock</option>
+                        <option value="AAPL">Apple (AAPL)</option>
+                        <option value="TSLA">Tesla (TSLA)</option>
+                        <option value="MSFT">Microsoft (MSFT)</option>
+                        <option value="AMZN">Amazon (AMZN)</option>
+                        <option value="GOOGL">Google (GOOGL)</option>
+                        <option value="META">Facebook (META)</option>
+                        <option value="NFLX">Netflix (NFLX)</option>
+                        <option value="NVDA">Nvidia (NVDA)</option>
+                        <option value="INTC">Intel (INTC)</option>
+                        <option value="BRK-A">Berkshire Hathaway (BRK-A)</option>
+                        <option value="IBM">IBM (IBM)</option>
+                        <option value="AMD">AMD (AMD)</option>
+                        <option value="CSCO">Cisco (CSCO)</option>
+                        <option value="PYPL">PayPal (PYPL)</option>
+                        <option value="CRM">Salesforce (CRM)</option>
+                        <option value="ORCL">Oracle (ORCL)</option>
+                        <option value="KO">Coca-Cola (KO)</option>
+                        <option value="PEP">PepsiCo (PEP)</option>
+                        <option value="PG">Procter & Gamble (PG)</option>
+                        <option value="WMT">Walmart (WMT)</option>
+                        <option value="F">Ford (F)</option>
+                        <option value="GM">General Motors (GM)</option>
+                        <option value="JNJ">Johnson & Johnson (JNJ)</option>
+                        <option value="PFE">Pfizer (PFE)</option>
+                        <option value="MRK">Merck (MRK)</option>
+                        <option value="XOM">ExxonMobil (XOM)</option>
+                        <option value="CVX">Chevron (CVX)</option>
+                        <option value="TGT">Target (TGT)</option>
+                        <option value="COST">Costco (COST)</option>
+                        <option value="M">Macy's (M)</option>
+                        <option value="JPM">JPMorgan Chase (JPM)</option>
+                        <option value="GS">Goldman Sachs (GS)</option>
+                        <option value="BAC">Bank of America (BAC)</option>
+                        <option value="WFC">Wells Fargo (WFC)</option>
+                        <option value="C">Citigroup (C)</option>
+                        <option value="SPY">SPDR S&P 500 ETF Trust (SPY)</option>
+                        <option value="QQQ">Invesco QQQ Trust (QQQ)</option>
+                        <option value="VTI">Vanguard Total Stock Market ETF (VTI)</option>
+                        <option value="ARKK">ARK Innovation ETF (ARKK)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="start-date">Start Date:</label>
+                    <input type="date" id="start-date" name="start-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="end-date">End Date:</label>
+                    <input type="date" id="end-date" name="end-date" required>
+                </div>
+                <button type="submit" class="btn">Predict</button>
+            </form>
+        </section>
+        <section id="prediction-result" class="prediction-output">
+        </section>
+        <section id="loading" class="loading" style="display:none;">
+            <p>Loading... Please wait</p>
+        </section>
+    </main>
+    <footer class="footer">
+        <p>&copy; Raunak's Stock Predictor. All rights reserved.</p>
+    </footer>
+    <script>
+    document.getElementById('stock-form').addEventListener('submit', async function(event) {
+        event.preventDefault();        
+        const symbol = document.getElementById('stock-symbol').value;
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;        
+        const resultDiv = document.getElementById('prediction-result');
+        const loadingDiv = document.getElementById('loading');
+        loadingDiv.style.display = "block";
+        resultDiv.innerHTML = "";        
+        try {
+            const response = await fetch('http://127.0.0.1:5000/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ symbol, start_date: startDate, end_date: endDate })
+            });
+            const data = await response.json();        
+            loadingDiv.style.display = "none";        
+            if (data.error) {
+                resultDiv.innerHTML = `<p>${data.error}</p>`;
+            } else {
+                const predictions = data.dates.map((date, i) => {
+                    return `<p>${date}: $${data.predicted_prices[i].toFixed(2)}</p>`;
+                }).join('');
+                resultDiv.innerHTML = `<h3>Predicted Prices:</h3>${predictions}`;
+            }
+        } catch (error) {
+            resultDiv.innerHTML = `<p>Error fetching predictions. Please try again later.</p>`;
+            loadingDiv.style.display = "none";
+        }
+    });
+</script>
+
+</body>
+</html>
